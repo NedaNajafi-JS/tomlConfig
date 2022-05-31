@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>سرویس های متصل</title>
+
+  <style>
+    .dropbtn {
+      background-color: yellow;
+      color: black;
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    .dropdown {
+      display: inline-block;
+      position: relative
+    }
+
+    .dropdown-content {
+      position: absolute;
+      background-color: lightgrey;
+      min-width: 200px;
+      display: none;
+      z-index: 1;
+    }
+
+    .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-content a:hover {
+      background-color: orange;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown:hover .dropbtn {
+      background-color: grey;
+    }
+
+    .form__group {
+      position: relative;
+      padding: 15px 0 0;
+      margin-top: 10px;
+      width: 50%;
+    }
+
+    .form__field {
+      font-family: inherit;
+      width: 100%;
+      border: 0;
+      border-bottom: 2px solid #9b9b9b;
+      outline: 0;
+      font-size: 1.3rem;
+      color: rgb(29, 27, 27);
+      padding: 7px 0;
+      background: transparent;
+      transition: border-color 0.2s;
+
+      /* &::placeholder {
+        color: transparent;
+      } */
+
+      /* &:placeholder-shown~.form__label {
+        font-size: 1.3rem;
+        cursor: text;
+        top: 20px;
+      } */
+    }
+
+    .form__label {
+      position: absolute;
+      top: 0;
+      display: block;
+      transition: 0.2s;
+      font-size: 1rem;
+      color: #111010;
+    }
+
+    .form__field:focus {
+      /* ~.form__label {
+        position: absolute;
+        top: 0;
+        display: block;
+        transition: 0.2s;
+        font-size: 1rem;
+        color: #11998e;
+        font-weight: 700;
+      } */
+
+      padding-bottom: 6px;
+      font-weight: 700;
+      border-width: 3px;
+      border-image: linear-gradient(to right, #11998e, #38ef7d);
+      border-image-slice: 1;
+    }
+
+    .pointer {
+      cursor: pointer;
+    }
+
+    .wave {
+      width: 200px;
+      height: 50px;
+      background-color: #9b9fac;
+      box-shadow: inset 0 0 50px rgba(95, 89, 89, 0.5);
+      /* position: relative; */
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      transition: 0.4s;
+      font-family: "OpenSans" !important;
+      font-size: 1.5rem;
+      border: none;
+    }
+
+    /* reset input */
+    /* .form__field {
+
+      &:required,
+      &:invalid {
+        box-shadow: none;
+      }
+    } */
+
+    .evType {
+      left: 10px;
+    }
+
+    span {
+      content: "\2190";
+    }
+
+    .arrow-right {
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-right: 30px solid rgb(12, 12, 12);
+      /* position: relative;
+      left: -40%; */
+      cursor: pointer;
+    }
+
+    h2 {
+      position: relative;
+      left: -40%;
+    }
+
+    span {
+      display: inline-block !important;
+    }
+
+    /* demo */
+    body {
+      font-family: "OpenSans" !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-size: 1.5rem;
+      background-color: #f3efef;
+    }
+  </style>
+
+  <script>
+
+    loadPage = function () {
+      let url = window.location.href;
+      url = url.split('/');
+      const spnId = url[url.length - 1];
+      //const spnId = sessionStorage.getItem('spnId');
+      const mode = sessionStorage.getItem('mode');
+      if (spnId) {
+
+        fetch(`/view/${spnId}`, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          method: 'GET'
+        })
+          .then(res => {
+            res.text()
+              .then(data => {
+                data = JSON.parse(data);
+                console.log(data);
+
+                if (data.data) {
+                  const pack = data.data;
+
+                  let dependencies = '';
+
+                  let depNode = document.getElementById('dependencies');
+
+                  if (pack.dependencies) {
+                    for (dep of pack.dependencies) {
+
+                      let editLink = document.createElement('a');
+                      editLink.innerText = dep;
+                      editLink.setAttribute('class', 'pointer');
+                      editLink.setAttribute('id', dep);
+                      editLink.addEventListener('click', rowFocused);
+
+                      let enter_ = document.createElement('br');
+                      depNode.appendChild(enter_);
+                      depNode.appendChild(editLink);
+                      depNode.appendChild(enter_);
+                    }
+                  }
+
+                  let depToMe = document.getElementById('depToMe');
+
+                  if (pack.depToMe) {
+                    for (dep of pack.depToMe) {
+
+                      let editLink = document.createElement('a');
+                      editLink.innerText = dep;
+                      editLink.setAttribute('class', 'pointer');
+                      editLink.setAttribute('id', dep);
+                      editLink.addEventListener('click', rowFocused);
+
+                      let enter_ = document.createElement('br');
+                      depToMe.appendChild(enter_);
+                      depToMe.appendChild(editLink);
+                      depToMe.appendChild(enter_);
+                    }
+                  }
+
+                  document.getElementById('name').value = pack.name ?? '';
+                  document.getElementById('name').innerText = pack.name ?? '';
+
+                  document.getElementById('category').value = pack.category ?? '';
+                  document.getElementById('category').innerText = pack.category ?? '';
+
+                  document.getElementById('description').innerText = pack.description ?? '';
+
+                  document.getElementById('optional').value = pack.optional ?? '';
+                  document.getElementById('optional').innerText = pack.optional ?? '';
+
+                  // document.getElementById('dependencies').value = dependencies ?? '';
+                  // document.getElementById('dependencies').innerText = dependencies ?? '';
+
+                  document.getElementById('extras').value = pack.extras ?? '';
+                  document.getElementById('extras').innerText = pack.extras ?? '';
+
+                }
+              })
+          })
+      }
+    }
+
+
+    rowFocused = function (el) {
+      sessionStorage.setItem('spnId', el.target.id);
+      sessionStorage.setItem('mode', 'edit');
+      window.location.href = `/viewPanel/${el.target.id}`
+    }
+
+    window.addEventListener('popstate', function (event) {
+      console.log(55555)
+    });
+
+  </script>
+</head>
+
+<body style=" direction:ltr; margin-left: 50px;" onload="loadPage()">
+
+  <h2>
+    <span class="arrow-right" onclick="window.location.href='/index'"></span>
+    <small>Back to index</small>
+  </h2>
+
+
+  <div class="form__group field">
+    <label for="name">name: </label>
+    <label id="name" class="form__field"></label><br><br>
+  </div>
+
+  <div class="form__group field">
+    <label for="category">category: </label>
+    <label id="category" class="form__field"></label><br><br>
+  </div>
+
+  <div class="form__group field">
+    <label for="description">description: </label>
+    <label id="description" class="form__field"></label><br><br>
+  </div>
+
+  <div class="form__group field">
+    <label for="optional">optional: </label>
+    <label id="optional" class="form__field"></label><br><br>
+  </div>
+
+  <div class="form__group field">
+    <label for="dependencies">dependencies: </label>
+    <label id="dependencies" class="form__field"></label><br><br>
+  </div>
+
+  <div class="form__group field">
+    <label for="depToMe">Packages dependant to me: </label>
+    <label id="depToMe" class="form__field"></label><br><br>
+  </div>
+
+  <div class="form__group field">
+    <label for="extras">extras: </label>
+    <label id="extras" class="form__field"></label><br><br>
+  </div>
+
+</body>
+
+</html>

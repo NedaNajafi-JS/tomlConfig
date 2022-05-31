@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>Python poetry file</title>
+
+    <style>
+        .styled-table {
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: "OpenSans" !important;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            width: 50%;
+        }
+
+        .styled-table thead tr {
+            background-color: #009879;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .styled-table th,
+        .styled-table td {
+            padding: 12px 15px;
+            text-align: center;
+
+        }
+
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .styled-table tbody tr:focus {
+            border-bottom: 1px solid #cef1c5;
+        }
+
+        .styled-table tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        .styled-table tbody tr:last-of-type {
+            border-bottom: 2px solid #009879;
+        }
+
+        .styled-table tbody tr.active-row {
+            font-weight: bold;
+            color: #009879;
+        }
+
+        .pointer {
+            cursor: pointer;
+        }
+
+        span {
+            content: "\2190";
+        }
+
+        .arrow-right {
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 30px solid rgb(12, 12, 12);
+            /* position: relative;
+      left: -40%; */
+            cursor: pointer;
+        }
+
+        h2 {
+            position: relative;
+            left: -40%;
+        }
+
+        span {
+            display: inline-block !important;
+        }
+
+        body {
+            text-align: -webkit-center;
+            font-family: "OpenSans" !important;
+            font-size: 1.5rem;
+            background-color: #f3efef;
+        }
+    </style>
+
+    <script>
+        loadPage = function () {
+
+            fetch('/load', {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                method: 'GET'
+            })
+                .then(res => {
+                    res.text()
+                        .then(data => {
+                            data = JSON.parse(data);
+                            console.log(data);
+
+                            let spnTable = document.getElementById('spnContent');
+
+                            data.map(row => {
+
+                                let new_row = spnTable.insertRow();
+
+                                let new_cell = new_row.insertCell();
+
+                                let editLink = document.createElement('a');
+                                editLink.innerText = row.name;
+                                editLink.setAttribute('class', 'pointer');
+                                editLink.setAttribute('id', row.name);
+                                editLink.addEventListener('click', rowFocused);
+
+                                new_cell.appendChild(editLink);
+
+                                new_cell = new_row.insertCell();
+                                new_cell.innerText = row.category;
+
+                                spnTable.appendChild(new_row);
+
+                            });
+
+                        });
+                })
+
+        }
+
+        rowFocused = function (el) {
+            sessionStorage.setItem('spnId', el.target.id);
+            sessionStorage.setItem('mode', 'edit');
+            window.location.href = `/viewPanel/${el.target.id}`
+        }
+
+    </script>
+</head>
+
+<body onload="loadPage()">
+
+    <h2>
+        <span class="arrow-right" onclick="window.location.href='/'"></span>
+        <small>Upload another file</small>
+    </h2>
+
+    <table id="spnContent" class="styled-table"">
+        <tr">
+        <th>name</th>
+        <th>category</th>
+        </tr>
+
+    </table>
+
+</body>
+
+</html>
